@@ -1,4 +1,4 @@
-# 🍌 Gemini Nano Studio for ComfyUI
+# 🍌 Gemini Nano Banana for ComfyUI
 
 Ce projet est un custom node pour [ComfyUI](https://github.com/comfyanonymous/ComfyUI) qui intègre la puissance de l'API **Google Gemini 2.5 Flash Image ("Nano Banana")**.  
 Il fournit un node unique et polyvalent, le **Gemini Nano Studio**, qui permet de réaliser des opérations de génération et d'édition d'images directement dans vos workflows.
