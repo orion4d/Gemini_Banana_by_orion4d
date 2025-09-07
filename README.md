@@ -92,7 +92,7 @@ Connectez une ou plusieurs images pour les éditer ou les combiner.
 - **Erreur 429 (Quota Exceeded)** : Vous avez fait trop de requêtes à l'API trop rapidement. Attendez 2-3 minutes avant de relancer une génération.
 - **Node non trouvé** : Assurez-vous d'avoir bien redémarré ComfyUI après l'installation.
 - **Erreur « Fichier `apikey.txt` non trouvé »** : Vérifiez que le fichier `apikey.txt` est bien présent à la racine du dossier du node et qu'il n'est pas vide.
-
+- **Note à propos de l'upscale : le coefficient multiplicateur s'applique si le modèle est sur "none", sinon ce sera en fonction du modèle d'upscale choisi (certains sont en 8x d'autres en 2x)
 ---
 <div align="center">
 
