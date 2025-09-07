@@ -3,6 +3,7 @@
 <img width="1572" height="1067" alt="image" src="https://github.com/user-attachments/assets/afaccacc-3e77-4b47-b6ec-afcb97ecfe51" />
 <img width="1963" height="668" alt="image" src="https://github.com/user-attachments/assets/e35b2b8e-4bbe-4661-90e5-c32140de13c4" />
 <img width="1358" height="969" alt="image" src="https://github.com/user-attachments/assets/8b9c74e9-0185-45e0-a67e-72359f118cb3" />
+<img width="866" height="885" alt="image" src="https://github.com/user-attachments/assets/7e31cffb-dbc4-4404-b62a-7362f3fd364f" />
 
 Ce projet est un custom node pour [ComfyUI](https://github.com/comfyanonymous/ComfyUI) qui intègre la puissance de l'API **Google Gemini 2.5 Flash Image ("Nano Banana")**.  
 Il fournit un node unique et polyvalent, le **Gemini Nano Banana**, qui permet de réaliser des opérations de génération et d'édition d'images directement dans vos workflows.
