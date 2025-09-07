@@ -37,10 +37,8 @@ pip install google-generativeai opencv-python
 Naviguez dans votre dossier `ComfyUI/custom_nodes/` et clonez ce dépôt :
 
 ```bash
-git clone https://github.com/VOTRE_NOM_UTILISATEUR/VOTRE_NOM_DE_DEPOT.git
+git clone [https://github.com/VOTRE_NOM_UTILISATEUR/VOTRE_NOM_DE_DEPOT.git](https://github.com/orion4d/Gemini_Banana_by_orion4d.git)
 ```
-
-*(Remplacez par l'URL de votre dépôt GitHub.)*
 
 **Méthode Manuelle :**  
 Téléchargez ce projet en tant que fichier ZIP et extrayez-le dans votre dossier `ComfyUI/custom_nodes/`.
@@ -112,6 +110,15 @@ The new text should match the original's neon blue, stylized, and energetic typo
 
 ---
 
-## 📜 Licence
+---
+<div align="center">
 
-Ce projet est sous licence **MIT**.
+<h3>🌟 <strong>Show Your Support</strong></h3>
+<p>If this project helped you, please consider giving it a ⭐ on GitHub!</p>
+<p><strong>Made with ❤️ for the ComfyUI community</strong></p>
+<p><strong>by Orion4D</strong></p>
+<a href="https://ko-fi.com/orion4d">
+<img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Buy Me A Coffee" height="41" width="174">
+</a>
+
+</div>
