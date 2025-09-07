@@ -109,8 +109,6 @@ The new text should match the original's neon blue, stylized, and energetic typo
 - **Erreur « Fichier `apikey.txt` non trouvé »** : Vérifiez que le fichier `apikey.txt` est bien présent à la racine du dossier du node et qu'il n'est pas vide.
 
 ---
-
----
 <div align="center">
 
 <h3>🌟 <strong>Show Your Support</strong></h3>
