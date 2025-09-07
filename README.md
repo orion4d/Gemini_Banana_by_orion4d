@@ -88,22 +88,6 @@ Connectez une ou plusieurs images pour les éditer ou les combiner.
 
 ---
 
-## 💡 L'Art du Prompt Engineering
-
-Pour obtenir les meilleurs résultats, soyez directif.  
-Le modèle Gemini peut parfois répondre avec du texte au lieu d'une image.  
-Pour **forcer la génération d'image**, commencez votre prompt par une instruction claire :
-
-**Exemple de prompt efficace :**
-
-```text
-Return ONLY the modified image. Do not add any text.
-In the input image, replace the text "ENCRYPTMASTER" with "ORION4D".
-The new text should match the original's neon blue, stylized, and energetic typography.
-```
-
----
-
 ## 🔧 Dépannage
 
 - **Erreur 429 (Quota Exceeded)** : Vous avez fait trop de requêtes à l'API trop rapidement. Attendez 2-3 minutes avant de relancer une génération.
