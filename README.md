@@ -85,8 +85,6 @@ Connectez une ou plusieurs images pour les éditer ou les combiner.
 - **Édition simple** : Connectez une image à `image1` et décrivez la modification dans le prompt.
 - **Fusion** : Connectez plusieurs images et décrivez comment les fusionner.
 
-*(Pensez à remplacer ce lien par votre capture d'écran d'édition.)*
-
 ---
 
 ## 💡 L'Art du Prompt Engineering
