@@ -75,8 +75,6 @@ Une fois installé, vous trouverez le node **« 🍌 Gemini Nano Studio »** dan
 Pour générer une image à partir de texte, **ne connectez aucune image aux entrées**.  
 Écrivez simplement votre prompt.
 
-*(Pensez à remplacer ce lien par votre capture d'écran de T2I.)*
-
 ---
 
 ### Mode Image-to-Image / Fusion
