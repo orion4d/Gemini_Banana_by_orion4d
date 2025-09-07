@@ -1,0 +1,701 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nano Banana — 100 Image-to-Image Prompts</title>
+  <style>
+    :root{
+      --bg: #0b0f14;
+      --card:#111827;
+      --muted:#9aa4b2;
+      --text:#e5e7eb;
+      --accent:#ffd54a;
+      --border:#1f2937;
+      --chip:#0f172a;
+      --good:#16a34a;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg, #0b0f14 0%, #0b0f14 60%, #0a1220 100%);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Cantarell, Noto Sans, Ubuntu, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji";}
+    a{color:var(--accent)}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 20px 60px}
+    header{display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:12px;background: radial-gradient(100% 100% at 30% 20%, #ffe27a 0%, #ffd54a 40%, #f59e0b 100%);box-shadow: 0 0 0 3px #1f293733, 0 10px 30px #f59e0b33;position:relative}
+    .logo:after{content:"🍌";position:absolute;inset:0;display:grid;place-items:center;font-size:22px;filter: drop-shadow(0 2px 4px #0007)}
+    h1{font-size:clamp(24px, 3.8vw, 40px);line-height:1.1;margin:0}
+    .subtitle{color:var(--muted);margin-top:6px}
+    .cta-bar{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      appearance:none;border:1px solid var(--border);background:#0f172a;color:var(--text);
+      padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600;transition:.18s ease;
+    }
+    .btn:hover{transform:translateY(-1px);border-color:#334155}
+    .btn.ghost{background:#0b1222}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,#0f172a,#0b1220);border:1px solid var(--border);padding:14px;border-radius:14px;position:sticky;top:10px;z-index:9}
+    input[type="search"]{background:#0b1220;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:12px;min-width:260px;outline:none}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
+    .chip[data-active="true"]{background:#1e293b;border-color:#334155}
+    section{margin-top:22px}
+    .card{background:linear-gradient(180deg,#0f172a,#0d1422);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow: 0 6px 20px #0004}
+    .card h2{margin:0 0 6px;font-size:clamp(18px,2.6vw,24px)}
+    .grid{display:grid;grid-template-columns:repeat(1,1fr);gap:14px}
+    @media (min-width:720px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (min-width:980px){.grid{grid-template-columns:repeat(3,1fr)}}
+    details.pack{border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,#0e1523,#0b1220);padding:8px 10px}
+    details.pack>summary{list-style:none;cursor:pointer;padding:8px 6px;display:flex;align-items:center;gap:10px;font-weight:700}
+    details.pack[open]{box-shadow:inset 0 0 0 1px #334155aa}
+    details.pack>summary .tag{font-size:12px;color:#94a3b8;background:#0b1220;border:1px solid var(--border);padding:4px 8px;border-radius:999px}
+    .prompt{position:relative;border:1px solid var(--border);background:#0b1220;border-radius:12px;padding:14px}
+    .prompt h3{margin:0 0 8px;font-size:14px;color:#e2e8f0;padding-right:70px}
+    pre{margin:0;background:#0b1220;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.45}
+    .copy{position:absolute;top:12px;right:12px}
+    .copy .btn{padding:6px 10px;border-radius:10px;font-size:12px}
+    .muted{color:var(--muted);font-size:13px}
+    .foot{margin-top:20px;color:var(--muted);font-size:13px}
+    .hidden{display:none !important}
+    .toast{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:20px;background:#0b1222;border:1px solid #334155;color:var(--text);
+      padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s ease;
+    }
+    .toast.show{opacity:1;pointer-events:auto}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Nano Banana — 100 Prompts</h1>
+          <div class="subtitle">Image-to-Image prompt library for ComfyUI. Clean, modular, future-focused.</div>
+        </div>
+      </div>
+      <div class="cta-bar">
+        <button id="expandAll" class="btn ghost">Open all</button>
+        <button id="collapseAll" class="btn ghost">Close all</button>
+      </div>
+    </header>
+
+    <div class="toolbar card">
+      <input id="search" type="search" placeholder="Search a style or keyword… (e.g., hologram, watercolor, engraving)">
+      <div class="chips">
+        <span class="chip" data-filter="Pack 1">Pack 1</span>
+        <span class="chip" data-filter="Pack 2">Pack 2</span>
+        <span class="chip" data-filter="Pack 3">Pack 3</span>
+        <span class="chip" data-filter="Pack 4">Pack 4</span>
+        <span class="chip" data-filter="Pack 5">Pack 5</span>
+        <span class="chip" data-filter="Pack 6">Pack 6</span>
+        <span class="chip" data-filter="Pack 7">Pack 7</span>
+        <span class="chip" data-filter="all" data-active="true">All</span>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>How to use</h2>
+      <p class="muted">Each prompt follows the pattern: <strong>keep</strong> → <strong>style</strong> → <strong>add details</strong>. Paste into your Nano Banana node (Image-to-Image), then tweak light/material/mood for your target render.</p>
+    </section>
+
+    <!-- PACKS -->
+    <!-- Pack 1 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 1</span> Cartoon, painting & basics (1–15)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>1. Colorful cartoon</h3>
+          <pre><code>Transform the input image into a vibrant cartoon illustration,
+keep the original shapes and proportions,
+add bold outlines, flat vivid colors, playful shading.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>2. Manga style</h3>
+          <pre><code>Turn the input image into a black and white manga drawing,
+preserve the composition,
+add dynamic speed lines, expressive faces, high contrast inking.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>3. Oil painting</h3>
+          <pre><code>Convert the input image into a classical oil painting,
+keep the subject recognizable,
+add textured brush strokes, dramatic lighting, warm tones.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>4. Watercolor</h3>
+          <pre><code>Transform the input image into a watercolor artwork,
+maintain the scene composition,
+use soft flowing pigments, delicate paper texture, pastel colors.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>5. Vintage engraving</h3>
+          <pre><code>Turn the input image into a vintage engraving,
+keep the outlines intact,
+add fine crosshatching, monochrome ink, antique print style.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>6. Futuristic cyberpunk</h3>
+          <pre><code>Convert the input image into a cyberpunk scene,
+keep the main subject intact,
+add neon lights, holographic ads, rainy reflections, cinematic glow.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>7. Pixar-style 3D</h3>
+          <pre><code>Transform the input image into a smooth Pixar-style 3D render,
+preserve proportions,
+add soft shading, glossy materials, expressive eyes, clean lighting.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>8. Marble sculpture</h3>
+          <pre><code>Turn the input image into a marble statue,
+keep the pose and anatomy,
+use polished stone texture, classical sculpture aesthetic, museum lighting.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>9. Retro pixel art</h3>
+          <pre><code>Convert the input image into a retro pixel art sprite,
+keep the silhouette recognizable,
+limit the palette to 16 colors, blocky resolution, 8-bit aesthetic.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>10. Franco-Belgian comic</h3>
+          <pre><code>Transform the input image into a Franco-Belgian comic book page,
+keep the characters recognizable,
+add clear line art, flat coloring, dynamic storytelling panels.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>11. Pop Art</h3>
+          <pre><code>Turn the input image into a Pop Art painting,
+preserve the subject,
+use halftone dots, bold primary colors, Warhol-inspired repetition.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>12. Gothic horror</h3>
+          <pre><code>Transform the input image into a gothic horror illustration,
+maintain composition,
+add dark shadows, eerie fog, glowing eyes, dramatic contrasts.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>13. Surreal spaghetti world</h3>
+          <pre><code>Turn the input image into a surreal spaghetti fantasy,
+keep the original objects recognizable,
+replace textures with noodles and tomato sauce, playful surrealism.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>14. Epic sci‑fi</h3>
+          <pre><code>Convert the input image into a sci-fi epic illustration,
+keep the subject intact,
+add glowing spaceships, alien structures, galactic background, dramatic atmosphere.</code></pre>
+        </article>
+
+        <article class="prompt" data-pack="Pack 1">
+          <div class="copy"><button class="btn">Copy</button></div>
+          <h3>15. Stylized low‑poly</h3>
+          <pre><code>Transform the input image into a low-poly 3D render,
+keep the overall structure,
+add faceted geometry, pastel color palette, clean minimal look.</code></pre>
+        </article>
+      </div>
+    </details>
+
+    <!-- Pack 2 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 2</span> Traditional arts & textures (16–30)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>16. Pencil sketch</h3><pre><code>Transform the input image into a pencil sketch,
+keep the proportions intact,
+add fine graphite shading, visible strokes, hand-drawn look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>17. Wall graffiti</h3><pre><code>Turn the input image into a colorful street art graffiti,
+preserve the silhouette,
+add spray paint textures, dripping colors, bold tags on a wall.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>18. Futuristic hologram</h3><pre><code>Convert the input image into a glowing hologram,
+keep the outline recognizable,
+add transparent blue light, glitching edges, sci-fi projection effect.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>19. Japanese ukiyo‑e</h3><pre><code>Transform the input image into a Japanese ukiyo-e print,
+keep the composition,
+add woodblock textures, flat patterns, stylized waves and clouds.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>20. Claymation</h3><pre><code>Turn the input image into a clay stop-motion character,
+keep the proportions,
+add clay textures, fingerprints, handmade look, playful mood.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>21. Retro VHS</h3><pre><code>Convert the input image into a VHS screenshot,
+preserve the subject,
+add scanlines, color bleed, tape noise, 80s retro aesthetic.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>22. Art Deco poster</h3><pre><code>Transform the input image into an Art Deco poster,
+keep the central figure,
+add geometric gold patterns, bold symmetry, vintage typography style.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>23. Lego sculpture</h3><pre><code>Turn the input image into a Lego sculpture,
+keep the overall shapes,
+add plastic brick textures, bright colors, toy-like proportions.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>24. Impressionism</h3><pre><code>Convert the input image into an impressionist painting,
+keep the scene recognizable,
+add loose brush strokes, vibrant light reflections, Monet-inspired palette.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>25. Neon synthwave</h3><pre><code>Transform the input image into a synthwave illustration,
+keep the silhouette intact,
+add neon grid floor, purple-pink gradient sky, glowing retro sun.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>26. Medieval manuscript</h3><pre><code>Turn the input image into a medieval manuscript illustration,
+preserve the subject,
+add illuminated borders, flat medieval colors, old parchment texture.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>27. Pop culture sticker</h3><pre><code>Convert the input image into a glossy sticker design,
+keep the outline,
+add thick white border, bright colors, playful glossy finish.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>28. Italian fumetto</h3><pre><code>Transform the input image into an Italian fumetto comic panel,
+keep characters recognizable,
+add dramatic inking, speech bubbles, pulp action style.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>29. Biomechanical sci‑fi</h3><pre><code>Turn the input image into a biomechanical sci-fi artwork,
+preserve the structure,
+add organic wires, metallic tendons, glowing veins, Giger-inspired.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 2"><div class="copy"><button class="btn">Copy</button></div><h3>30. Stained glass</h3><pre><code>Convert the input image into a stained glass artwork,
+keep the silhouette intact,
+add colored glass fragments, black outlines, luminous backlight.</code></pre></article>
+      </div>
+    </details>
+
+    <!-- Pack 3 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 3</span> Experimental & hybrid (31–45)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>31. Digital glitch</h3><pre><code>Transform the input image into a glitch art piece,
+keep the shapes recognizable,
+add pixel errors, RGB shifts, fragmented noise, datamosh style.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>32. Holographic rainbow</h3><pre><code>Turn the input image into a holographic rainbow surface,
+preserve the silhouette,
+add metallic iridescence, shifting rainbow reflections, glossy textures.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>33. Paper cut</h3><pre><code>Convert the input image into layered paper cut art,
+keep the main shapes,
+add stacked colored paper textures, shadows between layers, handmade look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>34. Cubist world</h3><pre><code>Transform the input image into a Cubist painting,
+keep proportions recognizable,
+add fragmented geometric planes, overlapping perspectives, Picasso-style palette.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>35. Lo‑fi punk zine</h3><pre><code>Turn the input image into a DIY punk zine collage,
+preserve the outline,
+add photocopy textures, rough cut-outs, anarchic graffiti scribbles.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>36. Ancient mosaic</h3><pre><code>Convert the input image into an ancient Roman mosaic,
+keep the composition,
+add small colored tiles, tessellated patterns, cracked stone effect.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>37. Fractal universe</h3><pre><code>Transform the input image into a fractal-inspired artwork,
+preserve overall composition,
+add infinite recursive patterns, glowing neon spirals, mathematical surrealism.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>38. Dreamy pastel</h3><pre><code>Turn the input image into a dreamlike pastel scene,
+keep recognizable shapes,
+add soft gradients, floating sparkles, cotton candy atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>39. Rusty metal texture</h3><pre><code>Convert the input image into rusty industrial metal,
+keep the silhouette intact,
+add oxidized textures, peeling paint, heavy grunge atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>40. Glitchy 8‑bit</h3><pre><code>Transform the input image into a broken 8-bit videogame sprite,
+preserve silhouette,
+add corrupted pixels, distorted tiles, old CRT screen scanlines.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>41. Origami</h3><pre><code>Turn the input image into an origami sculpture,
+keep the main shapes,
+add folded paper textures, sharp creases, minimal geometric look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>42. Kaleidoscopic vision</h3><pre><code>Convert the input image into a kaleidoscopic vision,
+keep recognizable fragments,
+add mirrored symmetry, psychedelic neon colors, infinite reflections.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>43. Smoke & mist</h3><pre><code>Transform the input image into a smoky apparition,
+keep the silhouette,
+add swirling mist, glowing embers, ethereal ghostly textures.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>44. Liquid metal</h3><pre><code>Turn the input image into molten liquid metal,
+preserve proportions,
+add reflective chrome textures, fluid shapes, futuristic sci-fi vibe.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 3"><div class="copy"><button class="btn">Copy</button></div><h3>45. Surreal collage</h3><pre><code>Convert the input image into a surreal collage,
+keep the subject,
+add floating cut-outs, oversized objects, absurd juxtapositions, dream logic.</code></pre></article>
+      </div>
+    </details>
+
+    <!-- Pack 4 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 4</span> Cinematic & photo (46–60)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>46. Retro movie poster</h3><pre><code>Transform the input image into a vintage movie poster,
+keep the subject recognizable,
+add bold typography, faded colors, cinematic composition, 70s grindhouse style.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>47. Fashion studio photo</h3><pre><code>Turn the input image into a high-fashion studio photo,
+preserve proportions,
+add dramatic lighting, soft shadows, glossy background, Vogue-style elegance.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>48. B&W cinema</h3><pre><code>Convert the input image into a black and white film still,
+keep the subject intact,
+add high contrast lighting, deep shadows, film grain, 1940s noir atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>49. Sci‑fi poster</h3><pre><code>Transform the input image into a sci-fi movie poster,
+keep the central figure,
+add glowing spaceships, futuristic typography, starry background, epic atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>50. Spaghetti western</h3><pre><code>Turn the input image into a spaghetti western scene,
+preserve the composition,
+add dusty desert textures, sepia tones, wide-angle framing, retro cinema look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>51. Horror film</h3><pre><code>Convert the input image into a horror movie still,
+keep the subject visible,
+add eerie fog, dramatic red lighting, grainy textures, unsettling atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>52. Wildlife documentary</h3><pre><code>Transform the input image into a wildlife documentary shot,
+keep the natural proportions,
+add natural lighting, blurred background, sharp telephoto effect.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>53. Retro Polaroid</h3><pre><code>Turn the input image into a Polaroid photograph,
+preserve the framing,
+add faded colors, instant film border, vintage texture, casual mood.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>54. German expressionism</h3><pre><code>Convert the input image into an expressionist silent film still,
+keep the silhouette intact,
+add exaggerated shadows, angular sets, stark black and white contrasts.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>55. 80s music video</h3><pre><code>Transform the input image into an 80s music video frame,
+keep the subject recognizable,
+add neon lights, VHS textures, flashy costumes, retro stage lighting.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>56. Anime poster</h3><pre><code>Turn the input image into a Japanese anime poster,
+preserve proportions,
+add cel-shading, dramatic perspective, Japanese text typography, colorful palette.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>57. Vintage ad</h3><pre><code>Convert the input image into a 1950s advertisement,
+keep the character intact,
+add retro typography, smiling exaggerated expressions, pastel print colors.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>58. War film</h3><pre><code>Transform the input image into a war movie still,
+keep the central figure,
+add smoke, dust, cinematic explosions, muted military palette.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>59. Romantic film poster</h3><pre><code>Turn the input image into a romantic movie poster,
+preserve the composition,
+add soft pastel lighting, glowing background, dreamy typography.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 4"><div class="copy"><button class="btn">Copy</button></div><h3>60. Sports magazine cover</h3><pre><code>Convert the input image into a sports magazine cover photo,
+keep the subject intact,
+add dynamic motion blur, sharp highlights, bold modern typography.</code></pre></article>
+      </div>
+    </details>
+
+    <!-- Pack 5 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 5</span> Craft & ancient arts (61–75)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>61. Ancient fresco</h3><pre><code>Transform the input image into an ancient fresco,
+keep the composition recognizable,
+add cracked plaster texture, faded pigments, archaeological aesthetic.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>62. Embroidery</h3><pre><code>Turn the input image into an embroidered artwork,
+preserve the shapes,
+add stitched threads, colorful fabric textures, textile art look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>63. Modern stained glass</h3><pre><code>Convert the input image into a modern stained glass window,
+keep the silhouette intact,
+add abstract colored glass, black outlines, glowing backlight.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>64. Woodcut print</h3><pre><code>Transform the input image into a woodcut print,
+preserve proportions,
+add rough carved lines, high contrast black ink, medieval aesthetic.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>65. Islamic mosaic</h3><pre><code>Turn the input image into an Islamic geometric mosaic,
+keep the overall symmetry,
+add repeating patterns, vibrant tiles, ornamental borders.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>66. Painted ceramics</h3><pre><code>Convert the input image into painted pottery art,
+keep recognizable shapes,
+add ceramic glaze textures, floral ornaments, handmade aesthetic.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>67. Persian carpet motif</h3><pre><code>Transform the input image into a Persian carpet motif,
+preserve outlines,
+add intricate floral patterns, woven textures, ornamental borders.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>68. Ink calligraphy</h3><pre><code>Turn the input image into a calligraphy-inspired artwork,
+keep the silhouette,
+add fluid ink strokes, splashes, parchment background.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>69. Engraved metal</h3><pre><code>Convert the input image into an engraved metal plate,
+keep the main forms,
+add etched lines, polished metallic highlights, embossed details.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>70. Aboriginal dot painting</h3><pre><code>Transform the input image into aboriginal dot painting,
+keep the composition recognizable,
+add concentric dotted patterns, earthy tones, symbolic layout.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>71. Mayan mural</h3><pre><code>Turn the input image into a Mayan mural,
+preserve proportions,
+add stone wall texture, vivid mineral pigments, hieroglyphic patterns.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>72. Ikebana-inspired</h3><pre><code>Convert the input image into a Japanese ikebana flower arrangement style,
+keep the outline,
+add delicate plant textures, minimal balance, zen composition.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>73. Textile patchwork</h3><pre><code>Transform the input image into a fabric patchwork artwork,
+keep the silhouette intact,
+add stitched colorful squares, fabric textures, handmade look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>74. Wood inlay marquetry</h3><pre><code>Turn the input image into wood inlay marquetry,
+preserve shapes,
+add polished wooden textures, geometric inlays, artisan aesthetic.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 5"><div class="copy"><button class="btn">Copy</button></div><h3>75. Carved stone relief</h3><pre><code>Convert the input image into a carved stone relief,
+keep proportions,
+add chiseled details, rough stone surface, ancient monumental look.</code></pre></article>
+      </div>
+    </details>
+
+    <!-- Pack 6 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 6</span> Future & techno (76–90)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>76. Blue hologram</h3><pre><code>Transform the input image into a glowing blue hologram,
+keep the silhouette intact,
+add light particles, glitching edges, transparent sci-fi projection.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>77. Augmented reality HUD</h3><pre><code>Turn the input image into an augmented reality HUD,
+preserve proportions,
+add floating neon icons, transparent data layers, cybernetic overlay.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>78. Nanotechnology</h3><pre><code>Convert the input image into a nanotech-inspired design,
+keep recognizable shapes,
+add microscopic circuits, self-assembling particles, glowing patterns.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>79. Mechanical exoskeleton</h3><pre><code>Transform the input image into a robotic exoskeleton version,
+keep anatomy structure,
+add metallic armor plates, hydraulic joints, glowing power cores.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>80. Futuristic architecture</h3><pre><code>Turn the input image into futuristic architecture,
+preserve the main composition,
+add sleek glass towers, floating platforms, neon-lit sky.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>81. Genetic biotech</h3><pre><code>Convert the input image into a biotech creation,
+keep the silhouette,
+add glowing DNA strands, organic textures, hybrid biological patterns.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>82. Humanoid robot</h3><pre><code>Transform the input image into a humanoid robot,
+preserve proportions,
+add chrome plating, LED eyes, futuristic joints, clean design.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>83. Cyborg</h3><pre><code>Turn the input image into a cybernetic cyborg,
+keep recognizable face and body,
+add mechanical implants, exposed circuits, neon wires.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>84. VR simulation</h3><pre><code>Convert the input image into a virtual reality simulation,
+keep composition intact,
+add pixelated grids, neon landscapes, wireframe effects.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>85. Futuristic drone</h3><pre><code>Transform the input image into a futuristic drone design,
+preserve silhouette,
+add propellers, metallic body, glowing sensors, sci-fi lighting.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>86. Space satellite</h3><pre><code>Turn the input image into a space satellite artwork,
+keep proportions,
+add solar panels, glowing antennas, cosmic star background.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>87. Cyberspace landscape</h3><pre><code>Convert the input image into a cyberspace landscape,
+keep recognizable elements,
+add luminous grids, infinite digital tunnels, fractal neon structures.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>88. Organic machine</h3><pre><code>Transform the input image into an organic machine hybrid,
+keep the subject intact,
+add biomechanical textures, pulsating veins, metallic exoskin.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>89. Galactic megacity</h3><pre><code>Turn the input image into a galactic mega city,
+preserve composition,
+add flying vehicles, futuristic skyscrapers, glowing planetary horizon.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 6"><div class="copy"><button class="btn">Copy</button></div><h3>90. Futuristic weapon</h3><pre><code>Convert the input image into a high-tech sci-fi weapon design,
+keep silhouette intact,
+add glowing energy cores, sleek metallic textures, holographic details.</code></pre></article>
+      </div>
+    </details>
+
+    <!-- Pack 7 -->
+    <details class="pack" open>
+      <summary><span class="tag">Pack 7</span> Fantasy & mythology (91–100)</summary>
+      <div class="grid">
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>91. Epic dragon</h3><pre><code>Transform the input image into a mighty dragon form,
+keep the silhouette recognizable,
+add glowing scales, fiery breath, stormy sky background.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>92. Medieval knight</h3><pre><code>Turn the input image into a medieval knight,
+preserve proportions,
+add shining armor, heraldic symbols, dramatic battlefield lighting.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>93. Enchanted forest</h3><pre><code>Convert the input image into a magical forest scene,
+keep the main composition,
+add glowing mushrooms, fairy lights, misty atmosphere.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>94. Divine statue</h3><pre><code>Transform the input image into a statue of a mythological god,
+keep the posture intact,
+add marble textures, glowing aura, monumental sacred look.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>95. Ancient wizard</h3><pre><code>Turn the input image into an ancient wizard illustration,
+preserve proportions,
+add glowing runes, long robe, mystical staff, swirling energy.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>96. Elven city</h3><pre><code>Convert the input image into an elven cityscape,
+keep composition,
+add crystal towers, golden bridges, lush enchanted forest.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>97. Legendary creature</h3><pre><code>Transform the input image into a legendary creature,
+keep the silhouette intact,
+add monstrous textures, glowing eyes, ancient mythological vibe.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>98. Magic book</h3><pre><code>Turn the input image into an enchanted spellbook design,
+preserve the outline,
+add glowing inscriptions, floating sparks, aged leather texture.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>99. Epic battlefield</h3><pre><code>Convert the input image into an epic fantasy battle scene,
+keep central figure,
+add fiery sky, clashing armies, cinematic dramatic scale.</code></pre></article>
+
+        <article class="prompt" data-pack="Pack 7"><div class="copy"><button class="btn">Copy</button></div><h3>100. Mystic temple</h3><pre><code>Transform the input image into a mystical ancient temple,
+keep recognizable structure,
+add floating lights, overgrown vines, glowing celestial atmosphere.</code></pre></article>
+      </div>
+    </details>
+
+    <p class="foot">© Orion4D 2025 — Nano Banana Prompt Guide • Free to use (credit appreciated).</p>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied to clipboard</div>
+
+  <script>
+    // Non-intrusive toast
+    const toast = document.getElementById('toast');
+    const showToast = (msg) => {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1200);
+    };
+
+    // Robust copy function (works on file:// without permissions)
+    async function smartCopy(text, nodeToSelect){
+      // Try async clipboard API first
+      try{
+        if (navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(text);
+          showToast('Copied to clipboard');
+          return true;
+        }
+      }catch(e){ /* fallthrough */ }
+
+      // Fallback: temporary textarea + execCommand
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        ta.setAttribute('readonly','');
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok){ showToast('Copied to clipboard'); return true; }
+      }catch(e){ /* fallthrough */ }
+
+      // Final fallback: select the <pre> content so user can Ctrl+C
+      if (nodeToSelect){
+        const r = document.createRange();
+        r.selectNodeContents(nodeToSelect);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        showToast('Press Ctrl+C to copy');
+      }
+      return false;
+    }
+
+    // Wire copy buttons
+    document.querySelectorAll('.prompt').forEach(card => {
+      const btn = card.querySelector('.copy .btn');
+      const pre = card.querySelector('pre');
+      btn.addEventListener('click', async () => {
+        const text = pre.textContent.trim();
+        await smartCopy(text, pre);
+      });
+    });
+
+    // Search filter
+    const search = document.getElementById('search');
+    search.addEventListener('input', () => {
+      const q = search.value.toLowerCase().trim();
+      document.querySelectorAll('.prompt').forEach(p => {
+        const txt = p.textContent.toLowerCase();
+        p.classList.toggle('hidden', q && !txt.includes(q));
+      });
+    });
+
+    // Chip filters
+    const chips = document.querySelectorAll('.chip');
+    chips.forEach(chip => chip.addEventListener('click', () => {
+      chips.forEach(c => c.dataset.active = "false");
+      chip.dataset.active = "true";
+      const pack = chip.dataset.filter;
+      document.querySelectorAll('details.pack').forEach(d => {
+        if (pack === 'all') { d.classList.remove('hidden'); d.open = true; }
+        else {
+          const isMatch = d.querySelector('summary .tag').textContent.includes(pack);
+          d.classList.toggle('hidden', !isMatch);
+          d.open = isMatch;
+        }
+      });
+    }));
+
+    // Expand / Collapse all
+    document.getElementById('expandAll').addEventListener('click', () => {
+      document.querySelectorAll('details.pack').forEach(d => d.open = true);
+    });
+    document.getElementById('collapseAll').addEventListener('click', () => {
+      document.querySelectorAll('details.pack').forEach(d => d.open = false);
+    });
+  </script>
+</body>
+</html>
