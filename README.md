@@ -37,7 +37,7 @@ pip install google-generativeai opencv-python
 Naviguez dans votre dossier `ComfyUI/custom_nodes/` et clonez ce dépôt :
 
 ```bash
-git clone [https://github.com/VOTRE_NOM_UTILISATEUR/VOTRE_NOM_DE_DEPOT.git](https://github.com/orion4d/Gemini_Banana_by_orion4d.git)
+git clone https://github.com/orion4d/Gemini_Banana_by_orion4d.git
 ```
 
 **Méthode Manuelle :**  
